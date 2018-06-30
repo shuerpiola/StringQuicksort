@@ -1,3 +1,9 @@
+/*
+* Ricardo Boetto 2519915
+* I certify that this is my own work
+* Programming 3, Assignment 3
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,6 +33,21 @@ struct bucket {
     't', 'z', 0, NULL
 };
 
+void printbuckets () {
+    
+    int i;
+    for (i = 0; i < NUMBUCKETS; ++i) {
+        struct node *ptr = list[i].chainHead;
+        
+        while (ptr) {
+           printf("%s ", ptr->string);
+            ptr = ptr->next;
+        }
+    }
+}
+
+
+
 static int check(char* s, struct bucket b) {
     if (s[0] <= b.mininit) return -1;
     if (s[0] >= b.maxinit) return 1;
@@ -54,8 +75,10 @@ int add (char* s) {
     } while (low <= high);
     
     list[mid].numwords++;
-    struct node new = { s, list[mid].chainHead };
-    list[mid].chainHead = &new;
+    struct node* newNode = (struct node*) malloc(sizeof(struct node));
+    newNode->string = s;
+    newNode->next = list[mid].chainHead;
+    list[mid].chainHead = newNode;
 }
 
 
@@ -130,8 +153,54 @@ struct node* quicksort (struct node* pivot) {
 }
 
 
- 
+int validate (char* s) {
+    
+    int i;
+    int len = strlen(s);
+    
+    for (i = 0; i < len; ++i) {
+        if (s[i] < 'a' || s[i] > 'z') return 0;
+    }
+    
+    return 1;
+}
+
+
 int main () {
+    
+    char input[30];
+    printf("Input any number of words separated by whitespace characters, or ctrl+D to move on:\n");
+    while (scanf("%s", input) != EOF) {
+        
+        if (!validate(input)) continue;
+        
+        char* temp = (char*) calloc (strlen(input) + 1, sizeof(char));
+        
+        int i;
+        for (i = 0; i < strlen(input) + 1; ++i) {
+            temp[i] = input[i];
+        }
+        
+        
+        add(temp);
+        
+    }
+    
+    printf("\nUnsorted Buckets: ");
+    printbuckets();
+    
+    int i;
+    for (i = 0; i < NUMBUCKETS; i++) {
+        list[i].chainHead = quicksort(list[i].chainHead);
+    }
+    
+    printf("\nSorted Buckets: ");
+    printbuckets();
+    
+
+}
+
+int test_sort () {
     
     struct node a = {"abc", NULL};
     struct node b = {"xyz", &a};
